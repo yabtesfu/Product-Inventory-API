@@ -1,0 +1,19 @@
+{
+  "name": "project-inventory-api",
+  "version": "1.0.0",
+  "description": "A simple REST API for managing a project inventory, built with Node.js core modules (http and fs) without any external frameworks.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "rest-api",
+    "http",
+    "fs",
+    "crud",
+    "project-inventory"
+  ],
+  "author": "",
+  "license": "ISC"
+}
