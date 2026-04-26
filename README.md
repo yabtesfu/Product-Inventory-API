@@ -33,3 +33,18 @@ Records are stored in `data.json`. Each project has:
 | POST   | `/projects`         | Create a new project     |
 | PUT    | `/projects/:id`     | Update a project by ID   |
 | DELETE | `/projects/:id`     | Delete a project by ID   |
+
+### Filtering on `GET /projects`
+
+`GET /projects` supports optional query parameters:
+
+- `status` — exact match (e.g. `planned`, `in-progress`, `completed`)
+- `name` — case-insensitive substring match
+
+Examples:
+
+```
+GET /projects?status=planned
+GET /projects?name=movie
+GET /projects?status=in-progress&name=tracker
+```

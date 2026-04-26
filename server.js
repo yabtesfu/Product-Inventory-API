@@ -30,23 +30,35 @@ const nextId = (projects) =>
   projects.length === 0 ? 1 : Math.max(...projects.map((p) => p.id)) + 1;
 
 const server = http.createServer(async (req, res) => {
-  const { method, url } = req;
-  const projectIdMatch = url.match(/^\/projects\/([^/]+)$/);
+  const { method } = req;
+  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = parsedUrl.pathname;
+  const searchParams = parsedUrl.searchParams;
+  const projectIdMatch = pathname.match(/^\/projects\/([^/]+)$/);
 
-  if (method === 'GET' && url === '/') {
+  if (method === 'GET' && pathname === '/') {
     return sendJson(res, 200, { message: 'Project Inventory API is running' });
   }
 
-  if (method === 'GET' && url === '/projects') {
+  if (method === 'GET' && pathname === '/projects') {
     try {
-      const projects = await readProjects();
+      let projects = await readProjects();
+      const status = searchParams.get('status');
+      const name = searchParams.get('name');
+      if (status) {
+        projects = projects.filter((p) => p.status === status);
+      }
+      if (name) {
+        const needle = name.toLowerCase();
+        projects = projects.filter((p) => p.name.toLowerCase().includes(needle));
+      }
       return sendJson(res, 200, projects);
     } catch (err) {
       return sendJson(res, 500, { error: 'Failed to read projects' });
     }
   }
 
-  if (method === 'POST' && url === '/projects') {
+  if (method === 'POST' && pathname === '/projects') {
     try {
       const body = await parseBody(req);
       if (!body.name) {
