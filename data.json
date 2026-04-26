@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Inventory Tracker",
+    "description": "Internal tool to track office equipment.",
+    "status": "in-progress",
+    "createdAt": "2026-04-20T09:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Movie Review Site",
+    "description": "Web app where users post short movie reviews.",
+    "status": "planned",
+    "createdAt": "2026-04-22T14:30:00.000Z"
+  }
+]
