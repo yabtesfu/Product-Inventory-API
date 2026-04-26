@@ -8,4 +8,8 @@ const readProjects = async () => {
   return JSON.parse(raw);
 };
 
-module.exports = { readProjects };
+const writeProjects = async (projects) => {
+  await fs.writeFile(DATA_FILE, JSON.stringify(projects, null, 2), 'utf8');
+};
+
+module.exports = { readProjects, writeProjects };
