@@ -29,6 +29,26 @@ const parseBody = (req) =>
 const nextId = (projects) =>
   projects.length === 0 ? 1 : Math.max(...projects.map((p) => p.id)) + 1;
 
+const ALLOWED_STATUSES = ['planned', 'in-progress', 'completed'];
+
+const validateProjectInput = (body, { requireName }) => {
+  const errors = [];
+  const hasName = body.name !== undefined;
+  if (requireName && !hasName) {
+    errors.push('name is required');
+  }
+  if (hasName && (typeof body.name !== 'string' || body.name.trim() === '')) {
+    errors.push('name must be a non-empty string');
+  }
+  if (body.description !== undefined && typeof body.description !== 'string') {
+    errors.push('description must be a string');
+  }
+  if (body.status !== undefined && !ALLOWED_STATUSES.includes(body.status)) {
+    errors.push(`status must be one of: ${ALLOWED_STATUSES.join(', ')}`);
+  }
+  return errors;
+};
+
 const server = http.createServer(async (req, res) => {
   const { method } = req;
   const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
@@ -61,14 +81,15 @@ const server = http.createServer(async (req, res) => {
   if (method === 'POST' && pathname === '/projects') {
     try {
       const body = await parseBody(req);
-      if (!body.name) {
-        return sendJson(res, 400, { error: 'name is required' });
+      const errors = validateProjectInput(body, { requireName: true });
+      if (errors.length > 0) {
+        return sendJson(res, 400, { errors });
       }
       const projects = await readProjects();
       const newProject = {
         id: nextId(projects),
-        name: body.name,
-        description: body.description || '',
+        name: body.name.trim(),
+        description: (body.description || '').trim(),
         status: body.status || 'planned',
         createdAt: new Date().toISOString(),
       };
@@ -101,6 +122,10 @@ const server = http.createServer(async (req, res) => {
     const id = Number(projectIdMatch[1]);
     try {
       const body = await parseBody(req);
+      const errors = validateProjectInput(body, { requireName: false });
+      if (errors.length > 0) {
+        return sendJson(res, 400, { errors });
+      }
       const projects = await readProjects();
       const idx = projects.findIndex((p) => p.id === id);
       if (idx === -1) {
